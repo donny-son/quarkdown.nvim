@@ -54,11 +54,20 @@ local function terminal_height()
 end
 
 local function open_split_for(bufnr, height)
-  vim.cmd("botright " .. tostring(height) .. "split")
-  local win = vim.api.nvim_get_current_win()
+  -- `:split` reuses the current buffer in the new window, so a later
+  -- `termopen()` would mutate the .qd buffer in place and any other window
+  -- showing it would flip to the terminal too. `:new` opens a fresh scratch
+  -- buffer instead, keeping the source buffer untouched.
   if bufnr then
+    vim.cmd("botright " .. tostring(height) .. "split")
+    local win = vim.api.nvim_get_current_win()
     vim.api.nvim_win_set_buf(win, bufnr)
+    vim.api.nvim_win_set_height(win, height)
+    vim.wo[win].winfixheight = true
+    return win
   end
+  vim.cmd("botright " .. tostring(height) .. "new")
+  local win = vim.api.nvim_get_current_win()
   vim.api.nvim_win_set_height(win, height)
   vim.wo[win].winfixheight = true
   return win
