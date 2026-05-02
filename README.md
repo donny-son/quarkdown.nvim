@@ -4,6 +4,8 @@
 > DISCLAIMER
 > Currently this plugin is in very early development and may break
 
+![demo](https://github.com/user-attachments/assets/c18c8ed2-7164-44be-9e5d-813926fdc851)
+
 Neovim integration for [Quarkdown](https://github.com/iamgio/quarkdown), a
 Turing-complete Markdown flavor and typesetting system. This is the Neovim
 counterpart to the Quarkdown VS Code extension.
