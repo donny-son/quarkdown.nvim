@@ -4,7 +4,9 @@
 > DISCLAIMER
 > Currently this plugin is in very early development and may break
 
-![demo](https://github.com/user-attachments/assets/c18c8ed2-7164-44be-9e5d-813926fdc851)
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/c18c8ed2-7164-44be-9e5d-813926fdc851" controls width="600"></video>
+</p>
 
 Neovim integration for [Quarkdown](https://github.com/iamgio/quarkdown), a
 Turing-complete Markdown flavor and typesetting system. This is the Neovim
