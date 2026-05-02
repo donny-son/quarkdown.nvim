@@ -1,0 +1,161 @@
+*quarkdown.txt*  Quarkdown integration for Neovim                  *quarkdown*
+
+==============================================================================
+CONTENTS                                                  *quarkdown-contents*
+
+  1. Introduction ........................... |quarkdown-introduction|
+  2. Requirements ........................... |quarkdown-requirements|
+  3. Installation ........................... |quarkdown-installation|
+  4. Configuration .......................... |quarkdown-configuration|
+  5. Commands ............................... |quarkdown-commands|
+  6. Health ................................. |quarkdown-health|
+
+==============================================================================
+1. INTRODUCTION                                       *quarkdown-introduction*
+
+quarkdown.nvim is the Neovim companion plugin for Quarkdown, a Turing-complete
+Markdown flavor and typesetting system. It provides:
+
+    - File-type detection for `.qd` files
+    - Syntax highlighting (Markdown plus Quarkdown function calls)
+    - Language server integration (completions, hover, diagnostics,
+      semantic tokens) via the bundled `quarkdown language-server`
+    - User commands wrapping the Quarkdown CLI
+
+==============================================================================
+2. REQUIREMENTS                                       *quarkdown-requirements*
+
+    - Neovim 0.10 or newer
+    - The `quarkdown` CLI on $PATH (https://github.com/iamgio/quarkdown)
+
+==============================================================================
+3. INSTALLATION                                       *quarkdown-installation*
+
+Using lazy.nvim: >lua
+
+    {
+      "donny-son/quarkdown.nvim",
+      ft = "quarkdown",
+      config = function()
+        require("quarkdown").setup({})
+      end,
+    }
+<
+For local development, point lazy.nvim at the plugin folder: >lua
+
+    {
+      dir = "/path/to/quarkdown.nvim",
+      name = "quarkdown.nvim",
+      ft = "quarkdown",
+      config = function()
+        require("quarkdown").setup({})
+      end,
+    }
+<
+==============================================================================
+4. CONFIGURATION                                     *quarkdown-configuration*
+
+Defaults: >lua
+
+    require("quarkdown").setup({
+      cmd = { "quarkdown", "language-server" },
+      auto_attach = true,
+      root_markers = { ".git", "main.qd", "quarkdown.json" },
+      capabilities = nil,    -- merged with vim.lsp client capabilities
+      on_attach = nil,       -- function(client, bufnr)
+      settings = {},
+      semantic_tokens = true,
+      compile = {
+        args = {},             -- extra CLI args appended to every compile
+        output = nil,          -- -o <output>
+        pdf = false,           -- --pdf
+        preview = true,        -- watch command also enables --preview
+        watch = true,          -- reserved for future use
+        terminal_height = 10,  -- height of the preview/watch terminal split
+      },
+      preview = {
+        mode = "browser",      -- "browser" (default, opens a real browser
+                               --  via Quarkdown's --preview server) or
+                               -- "inline" (renders the PDF in a vsplit
+                               --  inside Neovim via image.nvim)
+        inline = {
+          width = 60,
+          dpi = 144,
+          page = 1,
+          refresh_on_save = true,
+          cache_dir = nil,     -- defaults to stdpath('cache')/quarkdown.nvim
+        },
+      },
+    })
+<
+==============================================================================
+5. COMMANDS                                               *quarkdown-commands*
+
+                                                          *:QuarkdownCompile*
+:QuarkdownCompile [args]
+    Compile the current `.qd` buffer using `quarkdown compile`. Extra args are
+    appended to the CLI invocation.
+
+                                                          *:QuarkdownPreview*
+:QuarkdownPreview [args]
+    Compile and open the live preview (`--preview`) in a terminal split.
+
+                                                            *:QuarkdownWatch*
+:QuarkdownWatch [args]
+    Compile, watch, and preview the current buffer (`--watch --preview`).
+
+                                                           *:QuarkdownCreate*
+:QuarkdownCreate [args]
+    Run `quarkdown create` to bootstrap a new project.
+
+                                                             *:QuarkdownStop*
+:QuarkdownStop
+    Stop the running Quarkdown background task and close its terminal.
+
+                                                          *:QuarkdownRestart*
+:QuarkdownRestart
+    Stop and restart the Quarkdown language server clients.
+
+Inline-preview controls (only meaningful when `preview.mode = "inline"`):
+
+                                                    *:QuarkdownPreviewClose*
+:QuarkdownPreviewClose
+    Close the inline preview split.
+
+                                                  *:QuarkdownPreviewRefresh*
+:QuarkdownPreviewRefresh
+    Recompile and re-render the current page.
+
+                                                     *:QuarkdownPreviewNext*
+                                                     *:QuarkdownPreviewPrev*
+:QuarkdownPreviewNext
+:QuarkdownPreviewPrev
+    Move to the next or previous page of the rendered PDF.
+
+                                                     *:QuarkdownPreviewPage*
+:QuarkdownPreviewPage {n}
+    Jump directly to page {n}.
+
+Inside the preview buffer, `q` closes it, `]p` / `[p` switch pages, and
+`r` refreshes.
+
+Inline preview requires:
+    - The 3rd/image.nvim plugin
+    - `pdftoppm` from the poppler suite on $PATH
+    - A terminal with image protocol support (Kitty, iTerm2, Ghostty,
+      WezTerm)
+
+Only one Quarkdown background task (preview, watch, ...) runs at a time.
+Switching from one to another (for example, running |:QuarkdownWatch| while
+|:QuarkdownPreview| is active) stops the previous task and reuses the same
+split. Focus stays in the editor window when a task starts. Inside the
+terminal buffer, press `q` (normal mode) or `<C-q>` (terminal mode) to hide
+the split without killing the task; rerun the same command to bring it back.
+
+==============================================================================
+6. HEALTH                                                   *quarkdown-health*
+
+Run `:checkhealth quarkdown` to verify the CLI is reachable and the Neovim
+version is supported.
+
+vim:tw=78:ts=8:ft=help:norl:
